@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Lab 2 - Paint</title>
+
+<style>
+body {
+    background-color: #DDDDDD;
+    user-select: none;
+}
+canvas {
+    background-color: white;
+    display: block;
+}
+#canvasholder {
+    border:2px solid black;
+    float: left;
+}
+</style>
+
+<script>
+"use strict";
+
+var canvas;
+var graphics;
+var eraseMode = false;
+
+function randomColorString() {
+    return "rgb(" +
+        Math.floor(256*Math.random()) + "," +
+        Math.floor(256*Math.random()) + "," +
+        Math.floor(256*Math.random()) + ")";
+}
+
+function clearCanvas() {
+    graphics.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function toggleEraser() {
+    eraseMode = !eraseMode;
+}
+
+function drawFace(x, y, color) {
+    graphics.save();
+    graphics.translate(x, y);
+    graphics.scale(0.3, 0.3);
+    graphics.translate(-300, -300);
+
+    graphics.fillStyle = color;
+    graphics.fillRect(100, 100, 400, 400);
+    graphics.strokeStyle = "black";
+    graphics.lineWidth = 2;
+    graphics.strokeRect(100, 100, 400, 400);
+
+    graphics.fillStyle = "#ffffff";
+    graphics.fillCircle(200, 220, 15);
+    graphics.fillCircle(390, 220, 15);
+
+    graphics.fillStyle = "#000000";
+    graphics.fillCircle(200, 220, 10);
+    graphics.fillCircle(390, 220, 10);
+
+    graphics.fillStyle = "#ffffff";
+    graphics.fillCircle(193, 215, 3);
+    graphics.fillCircle(383, 215, 3);
+
+    graphics.beginPath();
+    graphics.fillStyle = "#000000";
+    graphics.moveTo(230, 315);
+    graphics.bezierCurveTo(300, 335, 300, 335, 370, 315);
+    graphics.bezierCurveTo(330, 400, 270, 400, 230, 315);
+    graphics.fill();
+
+    graphics.beginPath();
+    graphics.moveTo(205, 325);
+    graphics.bezierCurveTo(205, 325, 225, 330, 230, 295);
+    graphics.bezierCurveTo(230, 295, 235, 335, 205, 325);
+    graphics.fill();
+
+    graphics.beginPath();
+    graphics.moveTo(395, 325);
+    graphics.bezierCurveTo(395, 325, 375, 330, 370, 295);
+    graphics.bezierCurveTo(370, 295, 365, 335, 395, 325);
+    graphics.fill();
+
+    graphics.fillStyle = "#ffffff";
+    graphics.fillRect(280, 330, 20, 20);
+    graphics.strokeRect(280, 330, 20, 20);
+    graphics.fillRect(300, 330, 20, 20);
+    graphics.strokeRect(300, 330, 20, 20);
+
+    graphics.restore();
+}
+
+function drawPolygon(x, y, radius, sides, color) {
+    graphics.beginPath();
+    graphics.fillStyle = color;
+
+    for (let i = 0; i < sides; i++) {
+        let angle = (2 * Math.PI / sides) * i;
+        let px = x + radius * Math.cos(angle);
+        let py = y + radius * Math.sin(angle);
+
+        if (i === 0) graphics.moveTo(px, py);
+        else graphics.lineTo(px, py);
+    }
+
+    graphics.closePath();
+    graphics.fill();
+}
+
+function installMouseHandler() {
+
+    var dragging = false;
+    var prevX, prevY;
+    var colorChoice;
+    var shapeType;
+
+    function doMouseDown(evt) {
+        if (dragging || evt.button !== 0) return;
+
+        var r = canvas.getBoundingClientRect();
+        var x = evt.clientX - r.left;
+        var y = evt.clientY - r.top;
+
+        dragging = true;
+        prevX = x;
+        prevY = y;
+
+        colorChoice = Number(document.getElementById("colorChoice").value);
+        shapeType = Number(document.getElementById("shapeType").value);
+
+        document.addEventListener("mousemove", doMouseMove);
+        document.addEventListener("mouseup", doMouseUp);
+    }
+
+    function doMouseMove(evt) {
+        if (!dragging) return;
+
+        var r = canvas.getBoundingClientRect();
+        var x = evt.clientX - r.left;
+        var y = evt.clientY - r.top;
+
+        if (Math.abs(x - prevX) + Math.abs(y - prevY) < 3) return;
+
+        if (eraseMode) {
+            graphics.fillStyle = "white";
+            graphics.fillRect(x-20, y-20, 40, 40);
+            prevX = x;
+            prevY = y;
+            return;
+        }
+
+        let currentColor;
+
+        if (colorChoice === 0) currentColor = randomColorString();
+        else if (colorChoice === 1) currentColor = "rgb(61, 22, 44)";
+        else if (colorChoice === 2) currentColor = "rgb(77, 98, 234)";
+        else if (colorChoice === 3) currentColor = "rgb(145, 130, 143)";
+        else if (colorChoice === 4) currentColor = "rgb(191, 209, 146)";
+        else if (colorChoice === 5) currentColor = "rgb(81, 39, 8)";
+        else if (colorChoice === 6) currentColor = "rgb(223, 198, 255)";
+        else if (colorChoice === 7) currentColor = "rgb(247, 132, 0)";
+
+        if (shapeType === 0) {
+            drawFace(x, y, currentColor);
+        }
+        else if (shapeType === 1) {
+            graphics.fillStyle = currentColor;
+            graphics.fillRect(x-20, y-20, 40, 40);
+        }
+        else if (shapeType === 2) {
+            drawPolygon(x, y, 25, 13, currentColor);
+        }
+
+        prevX = x;
+        prevY = y;
+    }
+
+    function doMouseUp() {
+        dragging = false;
+        document.removeEventListener("mousemove", doMouseMove);
+        document.removeEventListener("mouseup", doMouseUp);
+    }
+
+    canvas.addEventListener("mousedown", doMouseDown);
+}
+
+function init() {
+    canvas = document.getElementById("canvas");
+    graphics = canvas.getContext("2d");
+
+    addGraphicsContextExtras(graphics);
+    installMouseHandler();
+
+    graphics.fillStyle = "white";
+    graphics.fillRect(0,0,canvas.width,canvas.height);
+}
+
+function addGraphicsContextExtras(graphics) {
+    graphics.fillCircle = function(x,y,r) {
+        this.beginPath();
+        this.arc(x,y,r,0,2*Math.PI,false);
+        this.fill();
+    }
+}
+</script>
+</head>
+
+<body onload="init()">
+
+<h2>Lab 2 - Paint</h2>
+
+<p><b>Kolor:</b>
+<select id="colorChoice">
+    <option value="0">Random</option>
+    <option value="1">Bakłażan</option>
+    <option value="2">Chabrowy</option>
+    <option value="3">Taupe</option>
+    <option value="4">Szałwiowy</option>
+    <option value="5">Umbra</option>
+    <option value="6">Lawendowy</option>
+    <option value="7">Pomarańczowy</option>
+</select>
+<button onclick="toggleEraser()">Gumka</button>
+</p>
+
+<p><b>Narzędzie:</b>
+<select id="shapeType">
+    <option value="0">Kształtek</option>
+    <option value="1">Mały kwadracik</option>
+    <option value="2">13-kąt</option>
+</select>
+</p>
+
+<button onclick="clearCanvas()">Clear</button>
+
+<div id="canvasholder">
+<canvas id="canvas" width="1500" height="700"></canvas>
+</div>
+
+</body>
+</html>
