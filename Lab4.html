@@ -1,0 +1,49 @@
+
+<?xml version="1.0"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="800px" height="600px"
+     viewBox="0 0 800 600"
+     preserveAspectRatio="xMidYMid">
+
+   
+    <defs>
+        <g id="kolo-13">
+           
+            <animateTransform attributeName="transform" type="rotate"
+                              from="0 0 0" to="360 0 0"
+                              dur="4s" repeatCount="indefinite" />
+                              
+            <polygon points="0,-50 23.4,-44.1 41.1,-28.4 49.6,-6.0 46.8,17.7 33.3,37.3 11.8,48.6 -11.8,48.6 -33.3,37.3 -46.8,17.7 -49.6,-6.0 -41.1,-28.4 -23.4,-44.1"
+                     fill="none" stroke="black" stroke-width="1.5" />
+                     
+            <path d="M 0,0 L 0,-50 M 0,0 L 23.4,-44.1 M 0,0 L 41.1,-28.4 M 0,0 L 49.6,-6.0 M 0,0 L 46.8,17.7 M 0,0 L 33.3,37.3 M 0,0 L 11.8,48.6 M 0,0 L -11.8,48.6 M 0,0 L -33.3,37.3 M 0,0 L -46.8,17.7 M 0,0 L -49.6,-6.0 M 0,0 L -41.1,-28.4 M 0,0 L -23.4,-44.1"
+                  stroke="black" stroke-width="1" />
+        </g>
+
+        <g id="ramie">
+            <rect x="-150" y="-10" width="300" height="20" fill="red" />
+            <use xlink:href="#kolo-13" transform="translate(-150, 0)" />
+            <use xlink:href="#kolo-13" transform="translate(150, 0)" />
+        </g>
+    </defs>
+
+
+    <g transform="translate(200, 200) scale(0.8)">
+        <polygon points="-25,180 25,180 0,0" fill="purple" />
+        <use xlink:href="#ramie" transform="rotate(20)" />
+    </g>
+
+    <g transform="translate(460, 420)">
+        <polygon points="-35,180 35,180 0,0" fill="blue" />
+        <use xlink:href="#ramie" transform="rotate(15)" />
+    </g>
+    
+    <g transform="translate(630, 150) scale(0.6)">
+        <polygon points="-20,150 20,150 0,0" fill="green" />
+        <use xlink:href="#ramie" transform="rotate(-15)" />
+    </g>
+
+</svg>
