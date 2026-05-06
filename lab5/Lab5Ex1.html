@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Karuzela - GLTF</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: black; }
+    </style>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+</head>
+<body>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 200);
+camera.position.set(0, 15, 35);
+
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+scene.add(new THREE.AmbientLight(0xffffff, 1.2));
+const light = new THREE.DirectionalLight(0xffffff, 1.5);
+light.position.set(10,20,10);
+scene.add(light);
+
+const carousel = new THREE.Group();
+scene.add(carousel);
+
+const N = 13;
+const itemRadius = 9.5;
+const purpleMat = new THREE.MeshPhongMaterial({color:0x8A2BE2});
+const goldMat = new THREE.MeshPhongMaterial({color:0xB8860B});
+
+const base = new THREE.Mesh(new THREE.CylinderGeometry(12,12,0.8,N), purpleMat);
+carousel.add(base);
+
+const roofBase = new THREE.Mesh(new THREE.CylinderGeometry(12,12,0.4,N), purpleMat);
+roofBase.position.y = 7;
+carousel.add(roofBase);
+
+const roofTop = new THREE.Mesh(new THREE.CylinderGeometry(0,12,3,N), purpleMat);
+roofTop.position.y = 8.7;
+carousel.add(roofTop);
+
+const textureLoader = new THREE.TextureLoader();
+const earthSphere = new THREE.Mesh(
+    new THREE.SphereGeometry(3.5,32,32),
+    new THREE.MeshPhongMaterial({
+        map: textureLoader.load('earth.jpg')
+    })
+);
+earthSphere.position.y = 3.5;
+carousel.add(earthSphere);
+
+for(let i=0; i<N; i++){
+    const angle = i * 2*Math.PI / N;
+    const x = Math.cos(angle)*itemRadius;
+    const z = Math.sin(angle)*itemRadius;
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.12,0.12,7,16), goldMat);
+    pole.position.set(x,3.5,z);
+    carousel.add(pole);
+}
+
+const items = [];
+const gltfLoader = new GLTFLoader();
+
+gltfLoader.load('bed.glb', (gltf) => {
+    const originalModel = gltf.scene;
+
+    for(let j=0; j<N; j++){
+        const angle = j * 2*Math.PI / N;
+        const x = Math.cos(angle)*itemRadius;
+        const z = Math.sin(angle)*itemRadius;
+        
+        const item = originalModel.clone();
+        item.scale.set(3, 3, 3); 
+        item.position.set(x, 0, z);
+        item.rotation.y = -angle + Math.PI/2;
+        
+        carousel.add(item);
+        items.push({model: item, offset: j});
+    }
+});
+
+const clock = new THREE.Clock();
+function animate(){
+    requestAnimationFrame(animate);
+    const t = clock.getElapsedTime();
+    carousel.rotation.y = t * 0.5;
+    earthSphere.rotation.y = -t * 0.5;
+    
+    items.forEach(h => {
+        h.model.position.y = 3.5 + Math.sin(t * 3 + h.offset) * 1.2;
+    });
+    
+    controls.update();
+    renderer.render(scene, camera);
+}
+animate();
+window.addEventListener('resize', ()=>{
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
+</script>
+</body>
+</html>
