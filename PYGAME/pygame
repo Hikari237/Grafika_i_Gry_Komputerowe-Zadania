@@ -1,0 +1,100 @@
+import math
+import pygame
+
+
+pygame.init()
+
+SZEROKOSC = 600
+WYSOKOSC = 600
+SRODEK = (SZEROKOSC // 2, WYSOKOSC // 2)
+PROMIEN = 150
+LICZBA_BOKOW = 13
+
+ZOLTY = (255, 255, 0)
+NIEBIESKI = (0, 255, 0)
+BIALY = (255, 255, 255)
+CZARNY = (0, 0, 0)
+
+win = pygame.display.set_mode((SZEROKOSC, WYSOKOSC))
+pygame.display.set_caption("Zadanie 1 - wariant 13")
+clock = pygame.time.Clock()
+font = pygame.font.SysFont("times", 24)
+
+
+def utworz_wielokat(n, r):
+    """Zwraca punkty wielokata foremnego wzgledem srodka ukladu (0, 0)."""
+    punkty = []
+    for i in range(n):
+        kat = -math.pi / 2 + 2 * math.pi * i / n
+        x = r * math.cos(kat)
+        y = r * math.sin(kat)
+        punkty.append((x, y))
+    return punkty
+
+
+def przeksztalc_punkt(punkt, skala=(1, 1), obrot=0, pochylenie=(0, 0), przesuniecie=(0, 0)):
+    x, y = punkt
+
+    # Skalowanie.
+    x *= skala[0]
+    y *= skala[1]
+
+    # Pochylenie wzgledem osi X i Y.
+    shx, shy = pochylenie
+    x, y = x + shx * y, y + shy * x
+
+    # Obrot wokol srodka figury.
+    kat = math.radians(obrot)
+    cos_a = math.cos(kat)
+    sin_a = math.sin(kat)
+    x, y = x * cos_a - y * sin_a, x * sin_a + y * cos_a
+
+    # Przesuniecie do srodka okna oraz dodatkowa translacja.
+    return (
+        int(SRODEK[0] + x + przesuniecie[0]),
+        int(SRODEK[1] + y + przesuniecie[1]),
+    )
+
+
+def przeksztalc_wielokat(punkty, parametry):
+    return [przeksztalc_punkt(p, **parametry) for p in punkty]
+
+
+BAZOWE_PUNKTY = utworz_wielokat(LICZBA_BOKOW, PROMIEN)
+
+PRZEKSZTALCENIA = {
+    pygame.K_1: ("1", {"skala": (1, 1), "obrot": 0, "pochylenie": (0, 0), "przesuniecie": (0, 0)}),
+    pygame.K_2: ("2", {"skala": (1, 1), "obrot": 45, "pochylenie": (0, 0), "przesuniecie": (0, 0)}),
+    pygame.K_3: ("3", {"skala": (1, 1), "obrot": 90, "pochylenie": (0, 0), "przesuniecie": (0, 0)}),
+    pygame.K_4: ("4", {"skala": (1, 0.75), "obrot": 0, "pochylenie": (-0.45, 0), "przesuniecie": (0, 0)}),
+    pygame.K_5: ("5", {"skala": (1, 0.35), "obrot": 0, "pochylenie": (0, 0), "przesuniecie": (0, -165)}),
+    pygame.K_6: ("6", {"skala": (0.75, 1), "obrot": 0, "pochylenie": (0, -0.45), "przesuniecie": (0, 0)}),
+    pygame.K_7: ("7", {"skala": (1, 1), "obrot": -90, "pochylenie": (0, 0), "przesuniecie": (0, 0)}),
+    pygame.K_8: ("8", {"skala": (1, 0.45), "obrot": 25, "pochylenie": (0, 0), "przesuniecie": (0, 80)}),
+    pygame.K_9: ("9", {"skala": (1, 0.75), "obrot": 180, "pochylenie": (0.45, 0), "przesuniecie": (0, 0)}),
+}
+
+aktywny_klawisz = "1"
+aktywne_parametry = PRZEKSZTALCENIA[pygame.K_1][1]
+
+run = True
+while run:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+        elif event.type == pygame.KEYDOWN and event.key in PRZEKSZTALCENIA:
+            aktywny_klawisz, aktywne_parametry = PRZEKSZTALCENIA[event.key]
+
+    win.fill(ZOLTY)
+
+    punkty = przeksztalc_wielokat(BAZOWE_PUNKTY, aktywne_parametry)
+    pygame.draw.polygon(win, NIEBIESKI, punkty)
+    pygame.draw.polygon(win, CZARNY, punkty, 3)
+
+    label = font.render(f"Klawisz: {aktywny_klawisz}", True, BIALY)
+    win.blit(label, (15, 15))
+
+    pygame.display.update()
+    clock.tick(60)
+
+pygame.quit()
