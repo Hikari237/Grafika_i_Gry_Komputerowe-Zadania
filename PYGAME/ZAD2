@@ -1,0 +1,72 @@
+import pygame
+pygame.init()
+
+SZEROKOSC = 600
+WYSOKOSC = 600
+WARIANT = 13
+
+BIALY = (255, 255, 255)
+CZARNY = (0, 0, 0)
+ZOLTY = (255, 255, 0)
+ZIELONY = (0, 255, 0)
+NIEBIESKI = (0, 0, 255)
+CZERWONY = (255, 0, 0)
+
+win = pygame.display.set_mode((SZEROKOSC, WYSOKOSC))
+pygame.display.set_caption("Zadanie 2 - wariant 13")
+clock = pygame.time.Clock()
+
+
+def numer_rysunku(wariant):
+    return (wariant - 1) % 4 + 1
+
+
+def rysuj_wariant_1():
+    pygame.draw.circle(win, CZARNY, (300, 300), 150)
+    pygame.draw.rect(win, ZOLTY, (225, 225, 150, 150))
+
+
+def rysuj_wariant_2():
+    pygame.draw.rect(win, ZIELONY, (200, 150, 200, 200))
+    pygame.draw.polygon(win, BIALY, [(200, 350), (300, 250), (400, 350)])
+
+
+def rysuj_wariant_3():
+    pygame.draw.rect(win, NIEBIESKI, (200, 260, 200, 80))
+    pygame.draw.polygon(win, NIEBIESKI, [(260, 260), (340, 260), (300, 160)])
+    pygame.draw.polygon(win, NIEBIESKI, [(260, 340), (340, 340), (300, 440)])
+
+
+def rysuj_wariant_4():
+    grubosc = 12
+    pygame.draw.line(win, CZERWONY, (170, 170), (430, 170), grubosc)
+    pygame.draw.line(win, CZERWONY, (430, 170), (170, 430), grubosc)
+    pygame.draw.line(win, CZERWONY, (170, 430), (430, 430), grubosc)
+
+
+def rysuj_figure(wariant):
+    wybrany = numer_rysunku(wariant)
+
+    if wybrany == 1:
+        rysuj_wariant_1()
+    elif wybrany == 2:
+        rysuj_wariant_2()
+    elif wybrany == 3:
+        rysuj_wariant_3()
+    else:
+        rysuj_wariant_4()
+
+
+run = True
+while run:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+
+    win.fill(BIALY)
+    rysuj_figure(WARIANT)
+
+    pygame.display.update()
+    clock.tick(60)
+
+pygame.quit()
